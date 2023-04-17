@@ -16,6 +16,7 @@ public class E11_DataStream {
 			dout.writeBoolean(true);
 			dout.writeDouble(123.123);
 			dout.writeUTF("sss");
+			System.out.println();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}	
