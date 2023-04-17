@@ -24,6 +24,7 @@ public class E10_PrintStream {
 			PrintWriter out = new PrintWriter(bout);
 		) {
 			out.printf("%s는 %d원입니다.\n", "리치치즈스파게티", 3000);
+			System.out.println();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
