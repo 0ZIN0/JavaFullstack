@@ -10,16 +10,10 @@ public class Main {
 		
 		Scanner sc = new Scanner(System.in);
 		
-		int n = sc.nextInt();
-		int cnt = 0;
-		for(int i = 0; i < n - 1; i += 6) {
-			if(n - 1 - i <= 0) {
-				break;
-			} else {
-				n -= i;
-			}
-			cnt++;
-		}
-		System.out.println(cnt + 1);	
+		long A = sc.nextLong();
+		long B = sc.nextLong();
+				
+		System.out.println(A + B);
+		
 	}
 }
