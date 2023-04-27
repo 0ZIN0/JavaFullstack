@@ -80,7 +80,6 @@ class Wallet {
 	
 	public void add() {
 		money += 10;
-	
 	}
 	
 	public void print() {

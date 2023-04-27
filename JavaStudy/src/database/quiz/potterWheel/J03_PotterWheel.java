@@ -3,7 +3,10 @@ package database.quiz.potterWheel;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Scanner;
 
 import database.OjdbcConnection;
@@ -23,32 +26,71 @@ public class J03_PotterWheel {
 	 	(4) 리셋 기능을 실행하면 DB의 상품이 다시 충전된다
 	 */
 	
-	public static void main(String[] args)  {
-		Scanner sc= new Scanner(System.in);
-		try(
-			Connection conn = OjdbcConnection.getconnection();
-		) {
-			PotterWheel1 potterWheel = new PotterWheel1(conn);
-			System.out.println("1. 게임 시작 2. 리셋");
-			int select = sc.nextInt();
-			if(select == 1) {
-				int count = 0;
-				while(true) {
-					Prize prize = potterWheel.wheel(conn);
-					
-					System.out.printf("%d번째 : %s\n", count++, prize);
-					
-					if(prize != null && prize.getQty() == 0) {
-						break;
-					}
-				}
+	private PotterWheelDAO dao = new PotterWheelDAO();
+	private List<Prize> potter = new ArrayList<>(1000);
+	
+	public J03_PotterWheel() {
+		List<Prize> prizes = dao.getAllPrizes();
+		
+		int cnt = 0;
+		for(Prize prize : prizes) {
+			int num = (int)(prize.getPrize_rate() * 1000);
+			for(int i = 0; i < num; i++) {
+				potter.add(prize);
+				cnt++;
 			}
-			if(select == 2) {
-				potterWheel.reset(conn);
+		}
+		while(cnt++ < 1000) {
+			potter.add(null);
+		}
+		Collections.shuffle(potter);
+	}
+	
+	public Prize wheel() {
+		int size = potter.size();
+		
+		Prize prize = potter.get((int)(Math.random() * size));
+		
+		if(prize != null) {
+			int row = dao.minusQty(prize.getPrize_id());
+			
+			// row가 0이라면 수량이 다 소진되었다는 의미이므로 prize를 꽝으로 바꿔준다
+			if(row == 0) {
+				prize = null;
+			}
+		}
+		
+		return prize;
+	}
+	
+	public boolean checkRemain() {
+		
+		return dao.getRemainCount() > 0;
+	}
+	
+	public void reset() {
+		dao.resetQty();
+	}
+	public static void main(String[] args)  {
+		Scanner sc = new Scanner(System.in);
+		
+		J03_PotterWheel potterWheel = new J03_PotterWheel();
+		
+		for(int i = 0; i < 1000; i++) {			
+			Prize prize = potterWheel.wheel();
+			
+			if(prize == null) {
+				System.out.println("꽝입니다");
+			} else {
+				System.out.println(prize.getPrize_name() + "을(를) 뽑았습니다!");
 			}
 			
-		} catch (SQLException e) { 
-			e.printStackTrace();	
-		}
+			if(!potterWheel.checkRemain()) {
+				System.out.println("상품이 모두 소진되었습니다...");
+				potterWheel.reset();
+				System.out.println("리셋되었습니다");
+				break;
+			}
+		}	
 	}
 }
